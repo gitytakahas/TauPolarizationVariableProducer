@@ -36,8 +36,8 @@ public:
 
     for (const auto & recoTau : *recoTaus) {
 
-      Float_t pt_neutral = 0;
-      Float_t pt_charged = 0;
+      double pt_neutral = 0;
+      double pt_charged = 0;
       
       for(int ii = 0; ii < (int)recoTau.signalCands().size(); ii++){
 	Int_t pdg = abs(recoTau.signalCands()[ii]->pdgId());
@@ -52,8 +52,12 @@ public:
       }
       
       std::cout << "charged pt =" << pt_charged << ", neutral pt = " << pt_neutral << std::endl;
+      
+      pat::Tau _tau = recoTau;
 
-      newtau->push_back(recoTau);
+      _tau.addUserFloat("ptsumcharged", pt_charged); 
+
+      newtau->push_back(_tau);
    
     }
 
