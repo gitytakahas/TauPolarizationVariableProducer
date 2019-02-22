@@ -10,11 +10,13 @@ from PhysicsTools.NanoAOD.taus_updatedMVAIds_cff import *
 ##################### User floats producers, selectors ##########################
 
 addPolVars = cms.EDProducer("TauPolarizationVariableProducer",
-    src = cms.InputTag("slimmedTaus")
+    src = cms.InputTag("slimmedTausUpdated")
+#    src = cms.InputTag("linkedObjects")
 )
 
 finalTaus = cms.EDFilter("PATTauRefSelector",
-    src = cms.InputTag("slimmedTausUpdated"),
+#    src = cms.InputTag("slimmedTausUpdated"),
+    src = cms.InputTag("addPolVars"),
     cut = cms.string("pt > 18 && tauID('decayModeFindingNewDMs') && (tauID('byLooseCombinedIsolationDeltaBetaCorr3Hits') || tauID('byVLooseIsolationMVArun2v1DBoldDMwLT2015') || tauID('byVLooseIsolationMVArun2v1DBnewDMwLT') || tauID('byVLooseIsolationMVArun2v1DBdR03oldDMwLT') || tauID('byVVLooseIsolationMVArun2v1DBoldDMwLT') || tauID('byVVLooseIsolationMVArun2v1DBoldDMwLT2017v2') || tauID('byVVLooseIsolationMVArun2v1DBnewDMwLT2017v2') || tauID('byVVLooseIsolationMVArun2v1DBdR03oldDMwLT2017v2'))")
 )
 
@@ -44,6 +46,7 @@ def _tauId7WPMask(pattern,doc):
 
 tauTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     src = cms.InputTag("linkedObjects","taus"),
+#    src = cms.InputTag("addPolVars","taus"),
     cut = cms.string(""), #we should not filter on cross linked collections
     name= cms.string("Tau"),
     doc = cms.string("slimmedTaus after basic selection (" + finalTaus.cut.value()+")"),
@@ -198,8 +201,8 @@ tauMCTable = cms.EDProducer("CandMCMatchTableProducer",
 )
 
 
-tauSequence = cms.Sequence(patTauMVAIDsSeq + finalTaus + addPolVars)
-_tauSequence80X =  cms.Sequence(finalTaus + addPolVars)
+tauSequence = cms.Sequence(patTauMVAIDsSeq + addPolVars + finalTaus)
+_tauSequence80X =  cms.Sequence(addPolVars + finalTaus)
 eras.run2_miniAOD_80XLegacy.toReplaceWith(tauSequence,_tauSequence80X)
 tauTables = cms.Sequence(tauTable)
 tauMC = cms.Sequence(tauGenJets + tauGenJetsSelectorAllHadrons + genVisTaus + genVisTauTable + tausMCMatchLepTauForTable + tausMCMatchHadTauForTable + tauMCTable)
